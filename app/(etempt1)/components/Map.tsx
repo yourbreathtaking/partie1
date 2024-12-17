@@ -343,30 +343,25 @@ loadingIndicator.addTo(map);
             }, 1000);
             
         });
+
         fetch('/api/commune')
-        .then((response) => {
-            if (!response.ok) throw new Error('Network response was not ok');
-            return response.json();
-        })
-        .then((data) => {
-            if (!data || !data.features) throw new Error('Invalid or empty JSON data');
-            communeGeojson = L.geoJSON(data, { style, onEachFeature: onEachCommuneFeature }).addTo(map!);
-            if (spinnerElement) spinnerElement.style.display = 'none';
-        })
-        .catch((error) => console.error('Error loading commune GeoJSON:', error));
-        
-                
+            .then((response) => response.json())
+            .then((data) => {
+                communeGeojson = L.geoJSON(data, {
+                    style,
+                    onEachFeature: onEachCommuneFeature,
+                }).addTo(map!);
+                if (spinnerElement) spinnerElement.style.display = 'none';
+            })
+            .catch((error) => console.error('Error loading commune GeoJSON:', error));
+
         fetch('/api/batiment')
-        .then((response) => {
-            if (!response.ok) throw new Error('Network response was not ok');
-            return response.json();
-        })
-        .then((data) => {
-            if (!data || !data.features) throw new Error('Invalid or empty JSON data');
-            batimentData = data;
-        })
-        .catch((error) => console.error('Error loading batiment GeoJSON:', error));  
-           
+            .then((response) => response.json())
+            .then((data) => {
+                batimentData = data;
+            })
+            .catch((error) => console.error('Error loading batiment GeoJSON:', error));
+
         fetch('/api/communeStats')
             .then((response) => response.json())
             .then((data) => {
