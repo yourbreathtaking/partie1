@@ -1,0 +1,73 @@
+.hero {
+  position: relative;
+  height: 90vh;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+}
+
+.slideshow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  animation: slide-animation 30s infinite;
+}
+
+.slide {
+  min-width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  transition: opacity 1s ease-in-out;
+}
+
+@keyframes slide-animation {
+  0%, 25% { transform: translateX(0); }
+  25.01%, 50% { transform: translateX(-100%); }
+  50.01%, 75% { transform: translateX(-200%); }
+  75.01%, 100% { transform: translateX(-300%); }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.hero h1 {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+.hero p {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-detail {
+  background-color: transparent;
+  border: 2px solid #fff;
+  color: #fff;
+}
+
+.btn-contact {
+  background-color: #7baf3d;
+  color: #fff;
+}
+
+.btn-detail:hover, .btn-contact:hover {
+  opacity: 0.8;
+}

@@ -1,0 +1,19 @@
+/* ImageSlider.module.css */
+
+.sliderContainer {
+  position: relative;
+  width: 100%;
+  height: 90vh; /* Adjust height as needed */
+  overflow: hidden;
+}
+
+.slider {
+  width: 100%;
+  height: 100%;
+}
+
+.slide {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
