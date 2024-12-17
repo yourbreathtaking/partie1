@@ -358,7 +358,11 @@ loadingIndicator.addTo(map);
         fetch('/api/batiment')
             .then((response) => response.json())
             .then((data) => {
-                batimentData = data;
+                spinnerElement.style.display = 'block';
+                    setTimeout(() => {
+                        batimentData = data
+                        spinnerElement.style.display = 'none';
+                    }, 1000);
             })
             .catch((error) => console.error('Error loading batiment GeoJSON:', error));
 
