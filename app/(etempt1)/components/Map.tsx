@@ -18,9 +18,7 @@ const Map = () => {
         let selectedCommuneFeature: any = null;
 
         const initializeMap = () => {
-            map = L.map('the_map', {
-                fullscreenControl: true,
-            }).setView([31.2734, -7.5807], 8.5);
+            map = L.map('the_map').setView([31.2734, -7.5807], 8.5);
 
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
