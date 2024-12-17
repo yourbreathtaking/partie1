@@ -16,7 +16,7 @@ const Map = () => {
         let pieChart2Data: any = null;
         let allGreen: boolean = true;
         let selectedCommuneFeature: any = null;
-
+        
         const initializeMap = () => {
             map = L.map('the_map').setView([31.2734, -7.5807], 8.5);
 
@@ -30,24 +30,25 @@ const Map = () => {
         };
 
         map = initializeMap();
-        const info = L.control();
+        const info = new L.Control();
 
         info.onAdd = function () {
-            this._div = L.DomUtil.create('div', 'info');
-            this.update();
-            return this._div;
+            const div = L.DomUtil.create('div', 'info');
+            const update = (props?: { Nom_Commun?: string }) => {
+                const contents = props 
+                    ? `<b class="text-blue-500 text-lg">${props.Nom_Commun}</b>` 
+                    : '<p class="text-black">Survolez une commune </p>';
+                div.innerHTML = `<h4 class="font-bold text-black">Nom de la Commune</h4>${contents}`;
+            };
+            update();
+            (info as any).update = update;
+            return div;
         };
 
-        info.update = function (props?: { Nom_Commun?: string }) {
-            const contents = props 
-                ? `<b class="text-blue-500 text-lg">${props.Nom_Commun}</b>` 
-                : '<p class="text-black">Survolez une commune </p>';
-            this._div.innerHTML = `<h4 class="font-bold text-black ">Nom de la Commune</h4>${contents}`;
-        };
 
         info.addTo(map);
 
-        const legend = L.control({ position: 'bottomright' });
+        const legend = new L.Control({ position: 'bottomright' });
         legend.onAdd = function () {
             const div = L.DomUtil.create('div', 'legend p-4 bg-white shadow-lg text-black rounded-md');
             const grades = [
@@ -71,7 +72,7 @@ const Map = () => {
 
         legend.addTo(map);
 
-        const loadingIndicator = L.control({ position: 'topright' });
+        const loadingIndicator = new L.Control({ position: 'topright' });
 loadingIndicator.onAdd = function () {
     const div = L.DomUtil.create('div', 'loading-indicator');
     div.innerHTML = `
@@ -89,7 +90,7 @@ loadingIndicator.onAdd = function () {
 };
 loadingIndicator.addTo(map);
 
-        const spinnerElement = document.querySelector('.loading-indicator');
+        const spinnerElement = document.querySelector('.loading-indicator') as HTMLElement;
 
         function style(feature: any) {
             return {
@@ -102,7 +103,7 @@ loadingIndicator.addTo(map);
             };
         }
 
-        function highlightFeature(e: L.LeafletMouseEvent) {
+        const highlightFeature = (e: L.LeafletMouseEvent) => {
             const layer = e.target;
             layer.setStyle({
                 weight: 5,
@@ -111,16 +112,13 @@ loadingIndicator.addTo(map);
                 fillOpacity: 0.4,
             });
             layer.bringToFront();
-            info.update(layer.feature.properties);
-        }
+            (info as any).update(layer.feature.properties);
+        };
 
-        function resetHighlight(e: L.LeafletMouseEvent) {
-            if (communeGeojson) {
-                communeGeojson.resetStyle(e.target);
-            }
-            info.update();
-
-        }
+        const resetHighlight = (e: L.LeafletMouseEvent) => {
+            if (communeGeojson) communeGeojson.resetStyle(e.target);
+            (info as any).update();
+        };
 
         function zoomToFeature(e: L.LeafletMouseEvent) {
             if (map) {
@@ -148,7 +146,7 @@ loadingIndicator.addTo(map);
             L.geoJSON(filteredBatiments, {
                 style: customStyle ||((feature) => {
                 
-                    const confidence = feature.properties.confidence;
+                    const confidence = feature && feature.properties.confidence;
                     let color;
 
                     if (confidence >= 0.75) {
@@ -168,7 +166,7 @@ loadingIndicator.addTo(map);
                     };
                 }),
                 pointToLayer: (feature, latlng) => L.circleMarker(latlng, { radius: 5 }),
-            }).addTo(map);
+            }).addTo(map!);
             showPieChart(filteredBatiments);
             showPieChart2(communeName);
             showPopulationChart(communeFeature);
@@ -345,25 +343,30 @@ loadingIndicator.addTo(map);
             }, 1000);
             
         });
-
         fetch('/api/commune')
-            .then((response) => response.json())
-            .then((data) => {
-                communeGeojson = L.geoJSON(data, {
-                    style,
-                    onEachFeature: onEachCommuneFeature,
-                }).addTo(map!);
-                if (spinnerElement) spinnerElement.style.display = 'none';
-            })
-            .catch((error) => console.error('Error loading commune GeoJSON:', error));
-
+        .then((response) => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then((data) => {
+            if (!data || !data.features) throw new Error('Invalid or empty JSON data');
+            communeGeojson = L.geoJSON(data, { style, onEachFeature: onEachCommuneFeature }).addTo(map!);
+            if (spinnerElement) spinnerElement.style.display = 'none';
+        })
+        .catch((error) => console.error('Error loading commune GeoJSON:', error));
+        
+                
         fetch('/api/batiment')
-            .then((response) => response.json())
-            .then((data) => {
-                batimentData = data;
-            })
-            .catch((error) => console.error('Error loading batiment GeoJSON:', error));
-
+        .then((response) => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then((data) => {
+            if (!data || !data.features) throw new Error('Invalid or empty JSON data');
+            batimentData = data;
+        })
+        .catch((error) => console.error('Error loading batiment GeoJSON:', error));  
+           
         fetch('/api/communeStats')
             .then((response) => response.json())
             .then((data) => {
@@ -374,7 +377,7 @@ loadingIndicator.addTo(map);
         return () => {
             if (map) {
                 map.eachLayer((layer) => {
-                    map.removeLayer(layer);
+                    map!.removeLayer(layer);
                 });
                 map.off();
                 map.remove();
